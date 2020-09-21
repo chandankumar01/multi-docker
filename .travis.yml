@@ -1,0 +1,28 @@
+sudo: required
+
+services:
+    - docker
+
+before_install:
+    - docker build -t chandankumar01/react-test -f ./clinet/Dockerfile.dev ./clinet
+
+script:
+    - docker run chandankumar01/react-test npm test -- --coverage
+
+after_success:
+    - docker build -t chandankumar01/multi-clinet ./clinet
+    - docker build -t chandankumar01/multi-nginx ./nginx
+    - docker build -t chandankumar01/multi-server ./server
+    - docker build -t chandankumar01/multi-worker ./worker
+
+# Log in to the docker CLI
+- echo "$DOCKER_PASSWORD" | docker login -u "$DOCKER_ID" --password-stdin
+
+# Take those image and push them to docker hub
+- docker push chandankumar01/multi-clinet
+- docker push chandankumar01/multi-nginx
+- docker push chandankumar01/multi-server
+- docker push chandankumar01/multi-worker
+
+
+
